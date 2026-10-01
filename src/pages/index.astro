@@ -1,17 +1,269 @@
 ---
+import Layout from '../layouts/layout.astro';
+import ProductCard from '../components/card-product.astro';
+import { getProducts, getCategories } from '../lib/product';
 
+const [products, categories] = await Promise.all([
+  getProducts(),
+  getCategories(),
+]);
+
+const PER_PAGE = 8;
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="daily fitting — Katalog">
+  <div class="container-x page-shell">
+
+    <!-- Header Simetris -->
+    <div style="display:flex; flex-direction:column; align-items:center; text-align:center; padding-top:6px; padding-bottom:2px; gap:10px;">
+
+      <!-- Title serif italic -->
+      <h1
+        style="
+          font-family: 'Playfair Display', serif;
+          font-style: italic;
+          font-weight: 500;
+          font-size: 26px;
+          line-height: 1.2;
+          letter-spacing: -0.01em;
+          color: #432d1e;
+          margin: 0;
+        "
+      >
+        Spill Outfit
+      </h1>
+
+      <!-- Pill badge -->
+      <div
+        style="
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 14px;
+          border-radius: 9999px;
+          background-color: #d0e6c8;
+          color: #394c35;
+          max-width: 100%;
+          box-shadow: 0 1px 2px rgba(80, 100, 76, 0.10);
+        "
+      >
+        <span class="material-symbols-outlined" style="font-size:15px; flex-shrink:0; color:#50644c;">eco</span>
+        <span
+          style="
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          "
+        >
+           Daily Fitting • Link Produk ke platform resmi
+        </span>
+      </div>
+
+    </div>
+
+    <!-- Kategori dengan fade kanan + border coklat -->
+    <div class="chips-wrap">
+      <div class="chips-row no-scrollbar">
+        <button class="category-btn chip chip-active" data-category="all">
+          Semua
+        </button>
+        {categories.map((c) => (
+          <button class="category-btn chip" data-category={c.slug}>
+            {c.name}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <!-- Grid produk -->
+    <div class="product-grid" id="productGrid">
+      {products.length === 0 && (
+        <div style="grid-column:1 / -1; text-align:center; padding:48px 0; color:#4f453f; font-size:13px;">
+          Belum ada produk.
+        </div>
+      )}
+      {products.map((p, i) => (
+        <div class="product-wrapper" data-index={i}>
+          <ProductCard product={p} index={i} />
+        </div>
+      ))}
+    </div>
+
+    <!-- Empty -->
+    <div id="emptyCatalogState" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:48px 16px;">
+      <div class="bg-secondary-container/60 text-secondary" style="width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:12px;">
+        <span class="material-symbols-outlined" style="font-size:28px;">nature_people</span>
+      </div>
+      <p class="font-headline-sm text-primary" style="font-size:16px; margin:0;">Tidak Ditemukan</p>
+      <p class="text-on-surface-variant" style="font-size:12px; max-width:280px; margin-top:4px;">Coba kata kunci lain.</p>
+      <button id="resetSearchBtn" class="bg-primary text-on-primary shadow-soft-md" style="margin-top:16px; padding:10px 20px; border-radius:9999px; font-size:12px; font-weight:600; border:none; cursor:pointer;">
+        Lihat Semua
+      </button>
+    </div>
+
+    <!-- Pagination -->
+    <nav id="pagination" style="display:flex; align-items:center; justify-content:center; gap:8px; padding-top:6px;" aria-label="Pagination">
+      <button id="prevPageBtn" class="bg-surface-container text-on-surface-variant" aria-label="Prev" style="width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer;">
+        <span class="material-symbols-outlined" style="font-size:18px;">chevron_left</span>
+      </button>
+      <div id="paginationNumbers" style="display:flex; align-items:center; gap:8px;"></div>
+      <button id="nextPageBtn" class="bg-surface-container text-on-surface-variant" aria-label="Next" style="width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer;">
+        <span class="material-symbols-outlined" style="font-size:18px;">chevron_right</span>
+      </button>
+    </nav>
+
+    <!-- Footer -->
+    <div style="display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px; padding-top:12px;">
+      <span class="material-symbols-outlined text-secondary" style="font-size:20px;">nest_eco_leaf</span>
+      <p class="text-on-surface-variant/80" style="font-size:11.5px; max-width:260px; line-height:1.6; margin:0;">
+        Semua tautan diarahkan ke toko resmi di Shopee &amp; TikTok Shop.
+      </p>
+    </div>
+  </div>
+</Layout>
+
+<script define:vars={{ PER_PAGE }}>
+  (function initCatalog() {
+    const searchInput  = document.getElementById('productSearchInput');
+    const clearBtn     = document.getElementById('clearSearchBtn');
+    const categoryBtns = document.querySelectorAll('.category-btn');
+    const wrappers     = Array.from(document.querySelectorAll('.product-wrapper'));
+    const emptyState   = document.getElementById('emptyCatalogState');
+    const resetBtn     = document.getElementById('resetSearchBtn');
+    const copyToast    = document.getElementById('copyToast');
+    const pagination   = document.getElementById('pagination');
+    const prevBtn      = document.getElementById('prevPageBtn');
+    const nextBtn      = document.getElementById('nextPageBtn');
+    const numbersBox   = document.getElementById('paginationNumbers');
+
+    if (!searchInput || !emptyState || !pagination) return;
+
+    let currentCategory = 'all';
+    let searchQuery     = '';
+    let currentPage     = 1;
+
+    function getFiltered() {
+      const q = searchQuery.trim().toLowerCase();
+      return wrappers.filter((w) => {
+        const card  = w.querySelector('.product-item');
+        if (!card) return false;
+        const cat   = card.getAttribute('data-cat') || '';
+        const name  = (card.getAttribute('data-name') || '').toLowerCase();
+        const matchCat = currentCategory === 'all' || cat === currentCategory;
+        const matchQ   = !q || name.includes(q);
+        return matchCat && matchQ;
+      });
+    }
+
+    function pageBtnHTML(p) {
+      const active = p === currentPage;
+      return `
+        <button data-page="${p}"
+          style="width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:600; border:none; cursor:pointer; transition:transform 0.15s ease; ${
+            active
+              ? 'background:#432d1e; color:#ffffff; box-shadow: 0 1px 3px rgba(67,45,30,0.05), 0 6px 16px rgba(67,45,30,0.08);'
+              : 'background:#f2ede8; color:#4f453f;'
+          }">${p}</button>`;
+    }
+
+    function renderPagination(totalItems) {
+      const totalPages = Math.ceil(totalItems / PER_PAGE) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+      prevBtn.disabled = currentPage <= 1;
+      prevBtn.style.opacity = currentPage <= 1 ? '0.3' : '1';
+      nextBtn.disabled = currentPage >= totalPages;
+      nextBtn.style.opacity = currentPage >= totalPages ? '0.3' : '1';
+      numbersBox.innerHTML = '';
+      const maxButtons = 5;
+      let start = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+      let end   = Math.min(totalPages, start + maxButtons - 1);
+      if (end - start + 1 < maxButtons) start = Math.max(1, end - maxButtons + 1);
+      if (start > 1) {
+        numbersBox.insertAdjacentHTML('beforeend', pageBtnHTML(1));
+        if (start > 2) numbersBox.insertAdjacentHTML('beforeend', '<span style="padding:0 4px; color:#81756e; font-size:12px;">…</span>');
+      }
+      for (let i = start; i <= end; i++) numbersBox.insertAdjacentHTML('beforeend', pageBtnHTML(i));
+      if (end < totalPages) {
+        if (end < totalPages - 1) numbersBox.insertAdjacentHTML('beforeend', '<span style="padding:0 4px; color:#81756e; font-size:12px;">…</span>');
+        numbersBox.insertAdjacentHTML('beforeend', pageBtnHTML(totalPages));
+      }
+      numbersBox.querySelectorAll('[data-page]').forEach((el) => {
+        el.addEventListener('click', () => {
+          currentPage = Number(el.getAttribute('data-page'));
+          render();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+    }
+
+    function render() {
+      const filtered   = getFiltered();
+      const totalItems = filtered.length;
+      const totalPages = Math.ceil(totalItems / PER_PAGE) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      wrappers.forEach((w) => { w.classList.add('hidden'); w.style.display = 'none'; });
+      const startIdx = (currentPage - 1) * PER_PAGE;
+      filtered.slice(startIdx, startIdx + PER_PAGE).forEach((w) => {
+        w.classList.remove('hidden');
+        w.style.display = '';
+      });
+
+      const isEmpty = totalItems === 0;
+      emptyState.style.display = isEmpty ? 'flex' : 'none';
+      pagination.style.display = (isEmpty || totalPages <= 1) ? 'none' : 'flex';
+      renderPagination(totalItems);
+    }
+
+    function toggleClear(show) {
+      if (!clearBtn) return;
+      clearBtn.style.display = show ? 'flex' : 'none';
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      currentPage = 1;
+      toggleClear(searchQuery.length > 0);
+      render();
+    });
+    clearBtn?.addEventListener('click', () => {
+      searchInput.value = ''; searchQuery = ''; currentPage = 1;
+      toggleClear(false); render();
+    });
+    resetBtn?.addEventListener('click', () => {
+      searchInput.value = ''; searchQuery = ''; currentCategory = 'all'; currentPage = 1;
+      toggleClear(false); updateCategoryUI('all'); render();
+    });
+
+    function updateCategoryUI(slug) {
+      categoryBtns.forEach((btn) => {
+        const active = btn.getAttribute('data-category') === slug;
+        btn.classList.toggle('chip-active', active);
+      });
+    }
+
+    categoryBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        currentCategory = btn.getAttribute('data-category') || 'all';
+        currentPage = 1;
+        updateCategoryUI(currentCategory);
+        render();
+      });
+    });
+
+    prevBtn?.addEventListener('click', () => {
+      if (currentPage > 1) { currentPage--; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    });
+    nextBtn?.addEventListener('click', () => {
+      const totalPages = Math.ceil(getFiltered().length / PER_PAGE) || 1;
+      if (currentPage < totalPages) { currentPage++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    });
+
+    render();
+  })();
+</script>

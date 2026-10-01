@@ -1,0 +1,288 @@
+@import "tailwindcss/preflight";
+@tailwind utilities;
+
+:root {
+  --gutter: 16px;
+  --radius-card: 16px;
+  --radius-pill: 9999px;
+  --brown: #745948;
+  --brown-deep: #432d1e;
+}
+
+@layer base {
+  html,
+  body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #fef8f3;
+  }
+  body {
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  img {
+    color: transparent;
+  }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* ============ LAYOUT ============ */
+.container-x {
+  width: 100%;
+  max-width: 100%;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  box-sizing: border-box;
+}
+
+.page-shell {
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 14px;
+  padding-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ============ NAVBAR ============ */
+.navbar-inner {
+  width: 100%;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+/* Search bar dalam navbar */
+.nav-search {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 42px;
+  border-radius: 9999px;
+  background: #ffffff;
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+  box-shadow:
+    0 1px 2px rgba(67, 45, 30, 0.04),
+    0 2px 8px rgba(67, 45, 30, 0.05);
+}
+.nav-search:focus-within {
+  box-shadow:
+    0 2px 4px rgba(67, 45, 30, 0.06),
+    0 8px 24px rgba(67, 45, 30, 0.1);
+}
+.nav-search input {
+  width: 100%;
+  height: 100%;
+  padding-left: 42px;
+  padding-right: 40px;
+  border: none;
+  background: transparent;
+  border-radius: 9999px;
+  font-size: 13px;
+  color: #1d1b19;
+  outline: none;
+  box-sizing: border-box;
+}
+.nav-search input::placeholder {
+  color: #81756e;
+  opacity: 0.7;
+}
+.nav-search .nav-search-icon {
+  position: absolute;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  color: #81756e;
+  pointer-events: none;
+}
+.nav-search .nav-search-clear {
+  position: absolute;
+  right: 12px;
+  display: none;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #81756e;
+  padding: 4px;
+}
+
+/* ============ SAMBUTAN ============ */
+.welcome-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 2px;
+}
+.welcome-title {
+  font-family: "Playfair Display", serif;
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1.3;
+  color: #432d1e;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.welcome-sub {
+  font-size: 11.5px;
+  color: #4f453f;
+  opacity: 0.75;
+  margin: 2px 0 0 0;
+}
+
+/* ============ CHIPS ROW — FADE KANAN ============ */
+.chips-wrap {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+.chips-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 48px;
+  pointer-events: none;
+  background: linear-gradient(
+    to left,
+    #fef8f3 20%,
+    rgba(254, 248, 243, 0) 100%
+  );
+  z-index: 1;
+}
+.chips-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-top: 4px;
+  padding-bottom: 8px;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+/* Chip dengan border coklat kontras */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+  /* Border coklat kontras */
+  border: 1.5px solid rgba(116, 89, 72, 0.35);
+  background: #ffffff;
+  color: #432d1e;
+}
+.chip:active {
+  transform: scale(0.96);
+}
+
+/* Chip aktif: isi coklat tua */
+.chip.chip-active {
+  background: #432d1e;
+  color: #ffffff;
+  border-color: #432d1e;
+}
+
+/* ============ SHADOWS ============ */
+.shadow-soft {
+  box-shadow:
+    0 1px 2px rgba(67, 45, 30, 0.04),
+    0 2px 8px rgba(67, 45, 30, 0.05);
+}
+.shadow-soft-md {
+  box-shadow:
+    0 1px 3px rgba(67, 45, 30, 0.05),
+    0 6px 16px rgba(67, 45, 30, 0.08);
+}
+.shadow-soft-lg {
+  box-shadow:
+    0 4px 12px rgba(67, 45, 30, 0.1),
+    0 12px 32px rgba(67, 45, 30, 0.12);
+}
+.shadow-hairline {
+  box-shadow: 0 1px 0 rgba(67, 45, 30, 0.06);
+}
+
+/* ============ CARD ============ */
+.surface-card {
+  background: #ffffff;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  box-sizing: border-box;
+  width: 100%;
+}
+.surface-card:active {
+  transform: scale(0.985);
+}
+
+/* ============ GRID ============ */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.line-clamp-2-safe {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

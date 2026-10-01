@@ -1,0 +1,92 @@
+---
+import type { Product } from '../lib/product';
+
+interface Props {
+  product: Product;
+  index: number;
+}
+const { product, index } = Astro.props;
+
+const isTiktok = /tiktok|vt\.tiktok|vm\.tiktok/i.test(product.affiliate_url);
+const platform = isTiktok ? 'TikTok' : 'Shopee';
+
+// Short ID untuk display (8 karakter pertama UUID)
+const shortId = product.id.slice(0, 8).toUpperCase();
+---
+
+<div
+  class="product-item surface-card shadow-soft-md"
+  style="display:flex; flex-direction:column; height:100%;"
+  data-cat={product.category?.slug ?? ''}
+  data-cat-id={product.categories_id}
+  data-name={product.title}
+  data-product-id={product.id}
+>
+  <!-- Image 1:1 -->
+  <div style="position:relative; width:100%; aspect-ratio:1/1; background:#f2ede8; overflow:hidden;">
+    <img
+      src={product.image_url}
+      alt={product.title}
+      loading="lazy"
+      style="width:100%; height:100%; object-fit:cover; transition:transform 0.5s ease;"
+    />
+
+    <!-- ID badge -->
+    <div
+      style="
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        background: rgba(67, 45, 30, 0.85);
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+        color: #fef8f3;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        box-shadow: 0 1px 3px rgba(67, 45, 30, 0.15);
+      "
+    >
+      <span class="material-symbols-outlined" style="font-size: 11px;">tag</span>
+      <span>{shortId}</span>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div style="display:flex; flex-direction:column; flex:1; padding:12px; gap:8px; box-sizing:border-box;">
+
+    <!-- Nama produk -->
+    <h3 class="font-headline-sm text-primary line-clamp-2-safe"
+        style="font-size:13.5px; line-height:1.35; font-weight:500; margin:0; min-height:2.7em;">
+      {product.title}
+    </h3>
+
+    <!-- Harga -->
+    <span class="font-label-lg text-primary"
+          style="font-size:15px; font-weight:700; letter-spacing:-0.01em;">
+      {product.price}
+    </span>
+
+    <!-- Tombol beli -->
+    <a
+      class:list={[
+        'shadow-soft',
+        isTiktok ? 'bg-primary text-on-primary' : 'bg-orange-600 text-white',
+      ]}
+      href={product.affiliate_url}
+      target="_blank"
+      rel="noopener noreferrer"
+      style="margin-top:auto; display:flex; align-items:center; justify-content:center; gap:6px; height:38px; padding:0 12px; border-radius:9999px; font-size:12px; font-weight:700; letter-spacing:0.02em; text-decoration:none; transition:transform 0.15s ease;"
+    >
+      <span class="material-symbols-outlined" style="font-size:15px;">
+        {isTiktok ? 'storefront' : 'shopping_bag'}
+      </span>
+      <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Beli di {platform}</span>
+    </a>
+  </div>
+</div>
